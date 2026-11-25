@@ -23,10 +23,56 @@ jobs:
 
       - name: Build
         run: npm run build
-        
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tetris-web-app
           path: dist/
           if-no-files-found: error
+
+  test:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: test-results/
+          if-no-files-found: warn
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}
+          path: coverage/
+          if-no-files-found: warn
+
+      # Optional: shows the coverage as a table in the PR and in the run summary.
+      - name: Coverage report
+        if: always() && matrix.os == 'ubuntu-latest'
+        uses: davelosert/vitest-coverage-report-action@v2
