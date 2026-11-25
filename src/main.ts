@@ -23,28 +23,35 @@ const COLORS: Record<PieceType, [string, string]> = {
   S: ['#63e6a4', '#28aa78'], Z: ['#ff6b85', '#d83c65'], J: ['#5b9cff', '#3864d8'], L: ['#ffad61', '#e5773b'],
 };
 
-const gameCanvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
-const holdCanvas = document.querySelector<HTMLCanvasElement>('#hold-canvas');
-const nextCanvas = document.querySelector<HTMLCanvasElement>('#next-canvas');
-const overlay = document.querySelector<HTMLDivElement>('#overlay');
-const overlayKicker = document.querySelector<HTMLSpanElement>('#overlay-kicker');
-const overlayTitle = document.querySelector<HTMLElement>('#overlay-title');
-const overlayCopy = document.querySelector<HTMLSpanElement>('#overlay-copy');
-const overlayButton = document.querySelector<HTMLButtonElement>('#overlay-button');
-const scoreElement = document.querySelector<HTMLElement>('#score');
-const bestElement = document.querySelector<HTMLElement>('#best');
-const levelElement = document.querySelector<HTMLElement>('#level');
-const linesElement = document.querySelector<HTMLElement>('#lines');
-const holdStatus = document.querySelector<HTMLElement>('#hold-status');
-
-if (!gameCanvas || !holdCanvas || !nextCanvas || !overlay || !overlayKicker || !overlayTitle || !overlayCopy || !overlayButton || !scoreElement || !bestElement || !levelElement || !linesElement || !holdStatus) {
-  throw new Error('The game UI is incomplete.');
+function getElement<T extends Element>(selector: string): T {
+  const element = document.querySelector<T>(selector);
+  if (!element) throw new Error(`The game UI is incomplete: ${selector} not found.`);
+  return element;
 }
 
-const context = gameCanvas.getContext('2d');
-const holdContext = holdCanvas.getContext('2d');
-const nextContext = nextCanvas.getContext('2d');
-if (!context || !holdContext || !nextContext) throw new Error('Canvas rendering is unavailable.');
+function get2dContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas rendering is unavailable.');
+  return ctx;
+}
+
+const gameCanvas = getElement<HTMLCanvasElement>('#game-canvas');
+const holdCanvas = getElement<HTMLCanvasElement>('#hold-canvas');
+const nextCanvas = getElement<HTMLCanvasElement>('#next-canvas');
+const overlay = getElement<HTMLDivElement>('#overlay');
+const overlayKicker = getElement<HTMLSpanElement>('#overlay-kicker');
+const overlayTitle = getElement<HTMLElement>('#overlay-title');
+const overlayCopy = getElement<HTMLSpanElement>('#overlay-copy');
+const overlayButton = getElement<HTMLButtonElement>('#overlay-button');
+const scoreElement = getElement<HTMLElement>('#score');
+const bestElement = getElement<HTMLElement>('#best');
+const levelElement = getElement<HTMLElement>('#level');
+const linesElement = getElement<HTMLElement>('#lines');
+const holdStatus = getElement<HTMLElement>('#hold-status');
+
+const context = get2dContext(gameCanvas);
+const holdContext = get2dContext(holdCanvas);
+const nextContext = get2dContext(nextCanvas);
 
 let board = createBoard();
 let bag: PieceType[] = [];
